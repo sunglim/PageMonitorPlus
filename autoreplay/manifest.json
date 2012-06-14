@@ -1,0 +1,23 @@
+﻿{
+	
+	"background": {
+		"page": "background.html"
+	},
+	"browser_action": {
+		"default_icon": "main.png",
+		"default_popup": "popup.html"
+	},
+	"content_scripts": [ {
+      "js": [ "replay.js" ],
+      "matches": [ "http://www.youtube.com/*", "https://www.youtube.com/*" ],
+      "run_at": "document_end"
+   } ],
+   "description": "automatically refresh current webpage",
+   "icons": {
+      "18": "fly.png",
+      "24": "fly.png",
+      "48": "fly.png"
+   },
+   "name": "Auto Page Refresh",
+   "version": "0.9"
+}

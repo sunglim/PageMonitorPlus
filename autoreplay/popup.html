@@ -1,0 +1,21 @@
+﻿<html>
+<head>
+<script>
+
+/*
+chrome.extension.onRequest.addListener(function(any request, MessageSender sender, function sendResponse) {...});
+should use thise function..to communicate to background.html
+*/
+function setIntervalByBackground(){
+//$#input value = read from background
+var dbInterval = 1;
+var inputInterval = document.getElementsByTagName('input')[0];
+	inputInterval.setAttribute('value',dbInterval);
+}
+</script>
+</head>
+<body>
+Interval : <input type='text'></input>
+<input type='button' value='start'></input>
+</body>
+</html>
