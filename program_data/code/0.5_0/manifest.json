@@ -1,0 +1,18 @@
+{
+   "background_page": "background.html",
+   "browser_action": {
+      "default_icon": "icons/KnobLoopOff.png",
+      "default_title": "Reloader",
+      "popup": "popup.html"
+   },
+   "description": "Automatically reload a page. Configure how often each page reloads and see a count-down until the next load",
+   "icons": {
+      "128": "icons/KnobLoopOn128.png",
+      "16": "icons/KnobLoopOn16.png",
+      "32": "icons/KnobLoopOn.png",
+      "48": "icons/KnobLoopOn48.png"
+   },
+   "name": "Auto-ReloadAndSearch",
+   "permissions": [ "http://*/*", "https://*/*", "tabs" ],
+   "version": "0.1"
+}

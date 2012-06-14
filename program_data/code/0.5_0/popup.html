@@ -1,0 +1,112 @@
+<body onload="restoreOptions()" style="background-color:white;">
+<div style="width:10pc;color:black;font-family:sans-serif;font-size:small">
+    Reload page every:
+        <form name="reload_options" onsubmit="setReloader()" >
+    	<!-- Poor man's menu emulation.  TODO: highlight when mouse is over -->
+    	<!-- XXX Replace the hard-coded indices -->
+    	<div style="color:black" width="100%" onclick="document.reload_options.reloadOption[0].checked = true; setReloader()">
+    	    <input type="radio" name="reloadOption" value="0" checked>Never
+    	</div>
+        <div style="color:black" width="100%" onclick="document.reload_options.reloadOption[1].checked = true; setReloader()">
+    	    <input type="radio" name="reloadOption" value="5000">5 seconds
+    	</div>
+        <div style="color:black" width="100%" onclick="document.reload_options.reloadOption[2].checked = true; setReloader()">
+    	    <input type="radio" name="reloadOption" value="15000">15 seconds
+    	</div>
+        <div style="color:black" width="100%" onclick="document.reload_options.reloadOption[3].checked = true; setReloader()">
+    	    <input type="radio" name="reloadOption" value="30000">30 seconds
+    	</div>
+        <div style="color:black" width="100%" onclick="document.reload_options.reloadOption[4].checked = true; setReloader()">
+    	    <input type="radio" name="reloadOption" value="60000">1 minute
+    	</div>
+    	<div style="color:black" onclick="document.reload_options.reloadOption[9].checked = true; setReloader()" >
+    	   <input type="radio" name="reloadOption" value="rand" />Random (max 30m)
+    	</div>
+    
+    
+    	<!-- Free-form input -->
+    	<!-- TODO: days/hours/minutes -->
+    	<!-- XXX when the time is *real* high, like 999999999999999999999999999999999 seconds, the page just keeps reloading instantly -->
+    	<div style="color:black" id="freeFormDiv" width="100%">
+    	    <input type="radio" name="reloadOption" value="" id="freeForm" onclick="var f = document.reload_options.reloadOptionSeconds; f.focus(); f.select()" />
+    	    <input type="number" name="reloadOptionSeconds" value="" size="2" onfocus="document.getElementById('freeForm').checked = true" onunfocus="setReloader()" />seconds<br />
+    	</div>
+    	
+        <input type="submit" value="Set">
+    </form>
+</div>
+
+<script>
+
+    function restoreOptions() {
+		// connect with string ("findReloadTime")
+		// this will be received on background page. 
+		//chrome.extension.onConnect.addListener
+		
+        var port = chrome.extension.connect({name: "findReloadTime"});
+		// port Object 를 받는다. http://code.google.com/chrome/extensions/extension.html
+        port.onMessage.addListener(recvData);	
+		// message 받을때 함수를 등록
+		// 이건 popup이랑 background 둘다 있네
+        port.postMessage({msg:'getReloadTime'});
+    }
+
+    function recvData(data){
+        if (data.is_random) {
+            document.reload_options.reloadOption[9].checked = true;        
+        } else {
+            var reloadTime = data.ms_between_load;
+            for( i = 0; i < document.reload_options.reloadOption.length; i++ ) {
+                if(document.reload_options.reloadOption[i].value == reloadTime) {
+                    document.reload_options.reloadOption[i].checked = true;
+                    return;
+                }
+            }
+            // If we got this far, the value is not on the radio buttons
+            document.getElementById('freeForm').checked = true;
+            document.reload_options.reloadOptionSeconds.value = Math.floor(reloadTime / 1000) /* milliseconds -> seconds */;
+        }
+    }
+
+
+    function setReloader() {
+        var option = 0;
+        var isRandom = false;
+        // Walk thru the radios
+        for( i = 0; i < document.reload_options.reloadOption.length; i++ ) {
+            if( document.reload_options.reloadOption[i].checked == true ) {
+                if ('rand' == document.reload_options.reloadOption[i].value) {
+                    option = Math.floor(Math.random()*1800000);
+                    isRandom = true;
+                } else {
+                    option = document.reload_options.reloadOption[i].value;                
+                } 
+                break;
+            }
+        }
+        
+    	// Free-form input overrides the radios
+    	if (document.getElementById('freeForm').checked == true) {
+    	    if (document.reload_options.reloadOptionSeconds.value > 0) {
+        		option = document.reload_options.reloadOptionSeconds.value * 1000 /* seconds -> milliseconds */;
+    	    } else {
+        		// Reset the value
+        		option = 0;
+    	    }
+    	}
+        
+        
+		//getViews()로 가는데 왜 background에 있는 doReloader가 호출할수잇지?
+        var views = chrome.extension.getViews();
+        for (var i in views) {
+            if (views[i].doReloader) {
+                views[i].doReloader(option, isRandom);
+            }
+        }
+
+        window.close();
+        
+        return true;  // We use this function in onSubmit; probably not necessary
+    }
+
+</script>
