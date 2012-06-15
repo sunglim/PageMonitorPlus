@@ -5,14 +5,16 @@
     var tabs = new Array();
 
     chrome.extension.onConnect.addListener(function(port) {
+    	//port object(http://code.google.com/chrome/extensions/extension.html#type-Port)
+    	
         if (port.name === 'findReloadTime') {
 			//receive message from popup.html
             port.onMessage.addListener(function(data) {
                 if (data.msg === 'getReloadTime') {
-				//json ¿¡ msg·Î Á¤ÀÇ
+				//json ï¿½ï¿½ msgï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 					//The modern equivalent is chrome.tabs.query({'active': true}, function(tabs) 
                     chrome.tabs.getSelected(null, function(tab) {
-                        var tabIsReloaderActive = tabs[tab.id] || false;	//stringÀ» booleanÀ¸·Î ¸¸µé¾î¹ö¸®³×
+                        var tabIsReloaderActive = tabs[tab.id] || false;	//stringï¿½ï¿½ booleanï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                         if (tabIsReloaderActive) {
                             port.postMessage({ms_between_load:tabs[tab.id].ms_between_load, is_random:tabs[tab.id].is_random});
                         }
@@ -38,7 +40,7 @@
                 tabs[tab.id]['seconds_to_next_reload'] = time/1000;
                 tabs[tab.id]['is_random'] = isRandom;
 
-				// update¸¦ °­Á¦·Î doReload ¿¡¼­ ÇØÁØ´Ù.
+				// updateï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ doReload ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ø´ï¿½.
                 chrome.tabs.onUpdated.addListener(onUpdateListener);
 
                 chrome.browserAction.setIcon({path:"icons/KnobLoopOn.png", tabId:tab.id});
